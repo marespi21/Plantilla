@@ -1,46 +1,26 @@
-const USER_KEY = "loggedUser";
+import { StorageService } from "./storage.js";
 
-// Save session
-export function setLoggedUser(user) {
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-}
+export const AuthService = {
+  login(email, password) {
+    const user = StorageService.getUserByEmail(email);
+    if (user && user.password === password) {
+      const sessionUser = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      };
+      StorageService.setSession(sessionUser);
+      return sessionUser;
+    }
+    return null;
+  },
 
-// Get session
-export function getLoggedUser() {
-  return JSON.parse(localStorage.getItem(USER_KEY));
-}
+  logout() {
+    StorageService.clearSession();
+  },
 
-// Sign out
-export function logoutUser() {
-  localStorage.removeItem(USER_KEY);
-}
-
-// Check if there is an active user
-export function isLoggedIn() {
-  return !!localStorage.getItem(USER_KEY);
-}
-
-// Check if it is admin
-export function isAdmin() {
-  const user = getLoggedUser();
-  return user?.role === "admin";
-}
-
-
-export function useAuthGuard(route, navigate) {
-  const user = getLoggedUser();
-
-  if (!user) {
-    // NThere is no session → return to login
-    navigate("/");
-    return;
-  }
-
-  if (route === "/admin" && user.role !== "admin") {
-    // It's not admin → we send it to public view
-    navigate("/public");
-    return;
-  }
-
-  // If everything is fine, it does nothing and lets the page load
-}
+  getCurrentUser() {
+    return StorageService.getSession();
+  },
+};

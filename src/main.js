@@ -1,145 +1,112 @@
+import { StorageService } from "./services/storage.js";
+import { AuthService } from "./services/auth.js";
+import { renderLogin } from "./pages/login.js";
+import { renderUserDashboard } from "./pages/userDashboard.js";
+import { renderAdminDashboard } from "./pages/adminDashboard.js";
+import { renderProfile } from "./pages/profile.js";
+import "./style.css"; // Ensure styles are loaded
 
-const routes = {
-  "/": "app/templates/login.html",
-  "/register": "app/templates/register.html",
-  "/admin": "app/templates/admin.html",
-  "/newEvent":"app/templates/newEvent.html",
-  "/orders": "app/templates/orders.html",
-};
+const app = document.querySelector("#app");
+const loginContent = document.querySelector("#login-content");
 
-// Link SPA with data link and logout
-document.body.addEventListener("click", (e) => {
-  if (e.target.matches("[data-link]")) {
-    e.preventDefault();
-    navigate(e.target.getAttribute("href"));
+function init() {
+  StorageService.init();
+  router(); // Initial route check
+
+  // Handle navigation links
+  document.addEventListener("click", (e) => {
+    if (e.target.matches("[data-link]")) {
+      e.preventDefault();
+      navigateTo(e.target.getAttribute("href"));
+    }
+  });
+
+  // Handle browser back/forward
+  window.addEventListener("popstate", router);
+}
+
+export function navigateTo(url) {
+  history.pushState(null, null, url);
+  router();
+}
+
+function router() {
+  const user = AuthService.getCurrentUser();
+  const path = window.location.pathname;
+
+  // Clear previous content
+  app.innerHTML = "";
+  loginContent.innerHTML = "";
+  app.style.display = "block";
+
+  // Login Route
+  if (!user) {
+    if (path !== "/login" && path !== "/") {
+      // Redirect to login if not authenticated
+      navigateTo("/login");
+      return;
+    }
+    app.style.display = "none";
+    loginContent.innerHTML = renderLogin();
+    attachLoginEvents(); // Attach event listeners for login form
+    return;
   }
 
-  if (e.target.id === "logout-btn") {
-    e.preventDefault();
-    Swal.fire({
-      title: "Sign out?",
-      text: "Your current session will be closed",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, close",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        localStorage.removeItem("loggedUser");
-        navigate("/");
+  // Authenticated Routes
+  if (path === "/login" || path === "/") {
+    // Redirect based on role if already logged in
+    if (user.role === "admin") navigateTo("/admin");
+    else navigateTo("/dashboard");
+    return;
+  }
+
+  if (path === "/profile") {
+    renderProfile(app);
+    return;
+  }
+
+  if (path === "/admin") {
+
+    if (user.role !== "admin") {
+      alert("Access Denied");
+      navigateTo("/dashboard");
+      return;
+    }
+    renderAdminDashboard(app);
+    return;
+  }
+
+  if (path === "/dashboard") {
+    if (user.role === "admin") {
+      navigateTo("/admin"); // Redirect admin to their dashboard
+      return;
+    }
+    renderUserDashboard(app);
+    return;
+  }
+
+  // 404 - Default to dashboard logic
+  navigateTo("/dashboard");
+}
+
+// Logic for Login View Events
+function attachLoginEvents() {
+  const form = document.querySelector("#login-form");
+  if (form) {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = form.email.value;
+      const password = form.password.value;
+      const user = AuthService.login(email, password);
+
+      if (user) {
+        navigateTo(user.role === "admin" ? "/admin" : "/dashboard");
+      } else {
+        alert("Invalid credentials!");
       }
     });
   }
-});
-
-//  SPA browser with session and role validation
-export async function navigate(pathname) {
-  let user;
-  try {
-    user = JSON.parse(localStorage.getItem("loggedUser"));
-  } catch (err) {
-    localStorage.removeItem("loggedUser");
-    user = null;
-  }
-
-  //  already logged in and want to log back in
-  if (pathname === "/" && user) {
-    return navigate(user.role === "admin" ? "/admin" : "/orders");
-  }
-
-  // 🔐 Not logged in and want to access a protected route
-  const isProtected = ["/admin", "/orders"];
-  if (!user && isProtected.includes(pathname)) {
-    Swal.fire("Ups", "Sign in first", "warning");
-    return navigate("/");
-  }
-
-  //  Role protection: only admin can enter /admin
-  if (pathname === "/admin" && user?.role !== "admin") {
-    Swal.fire(
-      "Access denied",
-      "You do not have permits to enter here",
-      "error"
-    );
-    return navigate("/orders");
-  }
-   if (pathname === "/newEvent" && user?.role !== "admin") {
-    Swal.fire(
-      "Access denied",
-      "You do not have permits to enter here",
-      "error"
-    );
-    return navigate("/orders");
-  }
-
-
-  const route = routes[pathname];
-  if (!route) return navigate("/");
-
-  try {
-    const html = await fetch(route).then((res) => res.text());
-
-    const loginContent = document.getElementById("login-content");
-    const app = document.getElementById("app");
-
-    if (pathname === "/" || pathname === "/register") {
-      app.style.display = "none";
-      app.innerHTML = "";
-      loginContent.innerHTML = html;
-
-      if (pathname === "/") {
-        const { setupLogin } = await import("./app/pages/login.js");
-        setupLogin();
-      } else {
-        const { setupRegister } = await import("./app/pages/register.js");
-        setupRegister();
-      }
-    } else {
-      loginContent.innerHTML = "";
-      app.style.display = "flex";
-      app.innerHTML = "";
-
-      const { renderSidebar } = await import("./app/components/sidebar.js");
-
-      const sidebar = renderSidebar();
-      
-
-      const main = document.createElement("main");
-      main.id = "content";
-      main.innerHTML = html;
-
-      const mainContent = document.createElement("div");
-      mainContent.className = "main-content";
-    
-      mainContent.appendChild(main);
-
-      app.appendChild(sidebar);
-      app.appendChild(mainContent);
-
-      if (pathname === "/admin") {
-        const { setupDashboard } = await import("./app/pages/admin.js");
-        setupDashboard();
-      } 
-      if (pathname === "/orders") {
-        const { setuporders } = await import("./app/pages/orders.js");
-        setuporders();
-      }
-      if (pathname ==="/newEvent"){
-        const { setupNewEvent } = await import("./app/pages/newEvent.js");
-        setupNewEvent();       
-      }
-    }
-
-    history.pushState({}, "", pathname);
-  } catch (err) {
-    console.error("Browsing error:", err);
-    Swal.fire("Ups", "Something went wrong when loading the route", "error");
-    if (pathname !== "/") navigate("/");
-  }
 }
 
-//  Browser back/forward
-window.addEventListener("popstate", () => navigate(location.pathname));
-
-//  Load current route when starting the app
-navigate(location.pathname);
+// Start application
+document.addEventListener("DOMContentLoaded", init);
