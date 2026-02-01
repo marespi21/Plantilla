@@ -6,7 +6,7 @@ import { renderAdminDashboard } from "./pages/adminDashboard.js";
 import { renderProfile } from "./pages/profile.js";
 import "./style.css"; // Ensure styles are loaded
 
-const app = document.querySelector("#app");
+const app = document.querySelector("#app"); //QuerySelector, para que js busque ese id en el html #se usa cuando el html tiene un id , y . cuando es por clase
 const loginContent = document.querySelector("#login-content");
 
 function init() {

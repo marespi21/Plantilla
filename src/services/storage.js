@@ -9,8 +9,8 @@ const KEYS = {
 
 export const StorageService = {
     init() {
-        if (!localStorage.getItem(KEYS.USERS)) {
-            localStorage.setItem(KEYS.USERS, JSON.stringify(db.users));
+        if (!localStorage.getItem(KEYS.USERS)) { //Getitem ->obtener datos
+            localStorage.setItem(KEYS.USERS, JSON.stringify(db.users)); //setitem ->guardar datos
         }
         if (!localStorage.getItem(KEYS.PRODUCTS)) {
             localStorage.setItem(KEYS.PRODUCTS, JSON.stringify(db.products));
