@@ -1,60 +1,131 @@
-# Riwi Eats - Restaurant Management Template
+# Riwi Eats - Plantilla SPA Vanilla JS
 
-Este proyecto es una plantilla funcional para una aplicación de gestión de restaurante utilizando **Vanilla JavaScript** y **LocalStorage** para la persistencia de datos.
+Una plantilla de Aplicación de Página Única (SPA) moderna y ligera construida con **Vanilla JavaScript** y **Vite**. Este proyecto está diseñado como punto de partida para construir aplicaciones tipo e-commerce con autenticación basada en roles y un backend simulado.
 
 ## 🚀 Características
 
-- **Roles de Usuario**:
-  - **Admin**: Puede gestionar pedidos y cambiar estados.
-  - **Usuario**: Puede ver el menú, agregar al carrito y ver sus pedidos.
-- **Persistencia**: Los datos se guardan en el `localStorage` del navegador, simulando una base de datos.
-- **Datos Iniciales**: Se cargan desde `src/db.json` si no existen datos previos.
-- **Diseño Responsivo**: Interfaz moderna y adaptable a dispositivos móviles.
+-   **⚡ Potenciado por Vite**: Servidor de desarrollo y herramienta de construcción extremadamente rápidos.
+-   **🔐 Autenticación**: Inicio de sesión básico con email/contraseña y control de acceso basado en roles (Admin vs Usuario).
+-   **🛒 Carrito de Compras**: Carrito totalmente funcional con persistencia (localStorage).
+-   **📦 Gestión de Pedidos**:
+    -   **Usuarios**: Crear pedidos y ver historial.
+    -   **Admins**: Ver todos los pedidos y gestionar estados (Pendiente -> Preparando -> Listo -> Entregado).
+-   **🎨 UI Moderna**: Diseño limpio inspirado en modo oscuro usando variables CSS para fácil personalización.
+-   **📱 Responsivo**: Diseño amigable para móviles.
+-   **💾 Backend Simulado**: Usa `json-server` para simular una API REST.
 
-## 🛠️ Instalación y Ejecución
+---
 
-1. **Instalar dependencias**:
-   ```bash
-   npm install
-   ```
-2. **Ejecutar en desarrollo**:
-   ```bash
-   npm run dev
-   ```
-3. **Acceder a la aplicación**:
-   Abre tu navegador en la URL que indica la terminal (usualmente `http://localhost:5173`).
+## 🛠️ Instalación y Configuración
 
-## 🔑 Credenciales de Prueba
+### 1. Prerrequisitos
+-   [Node.js](https://nodejs.org/) (recomendado v16+)
+-   npm (viene con Node.js)
 
-El sistema viene con usuarios pre-configurados (ver `src/db.json`):
+### 2. Clonar e Instalar
+Clona el repositorio e instala las dependencias:
 
-| Rol   | Email          | Password |
-|-------|----------------|----------|
-| **Admin** | `admin@riwi.com` | `admin`  |
-| **User**  | `user@riwi.com`  | `user`   |
+```bash
+git clone <url-del-repositorio>
+cd Plantilla
+npm install
+```
+
+### 3. Iniciar el Backend (API Simulada)
+Este proyecto usa `json-server` para simular una base de datos. Se incluye un script para ejecutarlo apuntando al archivo correcto (`src/db.json`).
+
+```bash
+npm run server
+```
+
+La API correrá en `http://localhost:3000`.
+
+### 4. Iniciar el Frontend
+En una terminal separada:
+
+```bash
+npm run dev
+```
+
+La aplicación correrá en `http://localhost:5173`.
+
+---
 
 ## 📂 Estructura del Proyecto
 
-```
-src/
-├── services/       # Lógica de negocio (Auth, Cart, Orders, Storage)
-├── pages/          # Componentes de vista (Login, Dashboard, Profile)
-├── db.json         # Datos iniciales (Seed)
-├── main.js         # Router y punto de entrada
-└── style.css       # Estilos globales
+```text
+Plantilla/
+├── src/
+│   ├── pages/           # Lógica de vistas (Login, Dashboard, Menú, etc.)
+│   ├── services/        # Lógica de negocio y llamadas API (Auth, Cart, Orders)
+│   ├── templates/       # Fragmentos HTML (uso opcional)
+│   ├── db.json          # Archivo de base de datos simulada (Usuarios, Productos, Pedidos)
+│   ├── main.js          # Punto de entrada y lógica del Router
+│   ├── style.css        # Estilos globales y Variables CSS
+│   └── ...
+├── index.html           # Punto de entrada HTML principal
+├── package.json         # Dependencias y Scripts
+└── vite.config.js       # Configuración de Vite
 ```
 
-## 🎨 Personalización
+---
+
+## 🎨 Guía de Personalización
+
+### Cambiar Colores
+Abre `src/style.css` y modifica las variables `:root`:
+
+```css
+:root {
+  --primary: #FF4B2B;       /* Color principal de la marca */
+  --bg-dark: #121212;       /* Color de fondo */
+  --radius: 12px;           /* Radio de borde para tarjetas/botones */
+  /* ... */
+}
+```
 
 ### Agregar Productos
-Edita el archivo `src/db.json` y agrega nuevos objetos al array `products`.
-*Nota: Si ya ejecutaste la app, borra el LocalStorage o la key `products` para ver los cambios reflejados, ya que `db.json` solo se carga si no hay datos guardados.*
+Edita `src/db.json` y agrega ítems al array `products`:
 
-### Modificar Estilos
-Todo el diseño se encuentra en `src/style.css`. Se utilizan variables CSS (`:root`) para facilitar el cambio de colores y temas.
+```json
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Hamburguesa Nueva",
+      "price": 12000,
+      "category": "Comida Rápida",
+      "image": "https://url-de-imagen.com/imagen.jpg"
+    }
+  ]
+}
+```
 
-## 📝 Reglas de Negocio Implementadas
+### Agregar Nueva Página
+1.  Crea un nuevo archivo en `src/pages/miPagina.js`.
+2.  Exporta una función de renderizado (ej: `export function renderMiPagina(container) { ... }`).
+3.  Impórtala en `src/main.js`.
+4.  Agrega una condición de ruta en la función `router()` en `src/main.js`.
 
-1. **Estados del Pedido**: `pending` -> `preparando` -> `listo` -> `entregado`.
-2. **Validación de Rutas**: Protege `/admin` y `/dashboard` según el rol del usuario logueado.
-3. **Carrito**: Permite agregar múltiples items y calcula el total automáticamente.
+---
+
+## 🔑 Credenciales por Defecto
+
+| Rol   | Email           | Contraseña |
+| :--- | :-------------- | :------- |
+| **Admin** | `admin@riwi.com` | `admin`  |
+| **User**  | `user@riwi.com`  | `user`   |
+
+---
+
+## 📚 Endpoints de la API (JSON Server)
+
+-   `GET /users` - Listar todos los usuarios
+-   `GET /products` - Listar ítems del menú
+-   `GET /orders` - Listar todos los pedidos
+-   `POST /orders` - Crear un nuevo pedido
+
+---
+
+## Licencia
+Este proyecto es de código abierto y está disponible para fines educativos.

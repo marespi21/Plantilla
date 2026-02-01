@@ -20,31 +20,36 @@
             "id": 1,
             "name": "Burger Master",
             "price": 15000,
-            "category": "Fast Food"
+            "category": "Fast Food",
+            "image": "https://placehold.co/200"
         },
         {
             "id": 2,
             "name": "Pizza Pepperoni",
             "price": 20000,
-            "category": "Fast Food"
+            "category": "Fast Food",
+            "image": "https://placehold.co/200"
         },
         {
             "id": 3,
             "name": "Cesar Salad",
             "price": 12000,
-            "category": "Salad"
+            "category": "Salad",
+            "image": "https://placehold.co/200"
         },
         {
             "id": 4,
             "name": "Coke Zero",
             "price": 5000,
-            "category": "Drinks"
+            "category": "Drinks",
+            "image": "https://placehold.co/200"
         },
         {
             "id": 5,
             "name": "Water",
             "price": 3000,
-            "category": "Drinks"
+            "category": "Drinks",
+            "image": "https://placehold.co/200"
         }
     ],
     "orders": []

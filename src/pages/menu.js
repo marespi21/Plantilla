@@ -27,16 +27,17 @@ async function loadMenu() {
   const menuContainer = document.getElementById("menu-list");
   if (!menuContainer) return;
 
-  const products = await get("http://localhost:3000/menu");
+  const products = await get("http://localhost:3000/products");
   menuContainer.innerHTML = "";
 
   products.forEach((product) => {
     menuContainer.innerHTML += `
-      <div class="menu-item">
+      <div class="product-card">
+        <img src="${product.image}" alt="${product.name}" class="product-image">
         <h4>${product.name}</h4>
         <p>${product.category}</p>
         <strong>$${product.price}</strong>
-        <button data-add-id="${product.id}">Agregar</button>
+        <button class="btn-sm btn-primary" data-add-id="${product.id}">Agregar</button>
       </div>
     `;
   });

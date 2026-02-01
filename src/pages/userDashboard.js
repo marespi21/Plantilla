@@ -61,6 +61,7 @@ function renderProducts() {
 
     productList.innerHTML = products.map(p => `
         <div class="product-card">
+            <img src="${p.image}" alt="${p.name}" class="product-image">
             <div class="product-info">
                 <h3>${p.name}</h3>
                 <span class="category-badge">${p.category}</span>
